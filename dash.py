@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 import time
 import plotly.express as px
+import plotly.graph_objects as go
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
@@ -11,28 +14,30 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 df = pd.read_csv("bank.csv")
 
 st.set_page_config(
-    page_title='Real-Time Data Science Dashboard',
+    page_title='Data Science Moving Dashboard',
     page_icon='✅',
     layout='wide'
 )
 
 # Dashboard title
-st.title("Real-Time / Live Data Science Dashboard")
+st.title("Data Science Moving Dashboard")
 
 # Top-level filters
 job_filter = st.selectbox("Select the Job", pd.unique(df['job']))
+marital_filter = st.selectbox("Select Marital Status", pd.unique(df['marital']))
 
 # Creating a single-element container
 placeholder = st.empty()
 
-# Dataframe filter
+# Dataframe filters
 df = df[df['job'] == job_filter]
+df = df[df['marital'] == marital_filter]
 
 # Real-time / live feed simulation
 for seconds in range(200):
     # Simulate real-time data updates
-    df['age_new'] = df['age'] * np.random.choice(range(1, 5))
-    df['balance_new'] = df['balance'] * np.random.choice(range(1, 5))
+    df['age_new'] = df['age'] + np.random.choice(range(1, 5))
+    df['balance_new'] = df['balance'] + np.random.choice(range(1, 5))
 
     # Creating KPIs
     avg_age = np.mean(df['age_new'])
@@ -62,6 +67,26 @@ for seconds in range(200):
         st.dataframe(df)
 
     time.sleep(1)
+
+# Exploratory Data Analysis (EDA)
+st.header("Exploratory Data Analysis")
+
+# Pairplot
+st.markdown("### Pairplot")
+sns.pairplot(df, hue="deposit", diag_kind="kde")
+st.pyplot()
+
+# Correlation Heatmap
+st.markdown("### Correlation Heatmap")
+correlation_matrix = df.corr()
+sns.heatmap(correlation_matrix, annot=True)
+st.pyplot()
+
+# Bar Chart for Deposit
+st.markdown("### Deposit Distribution")
+deposit_counts = df['deposit'].value_counts()
+fig_deposit = px.bar(x=deposit_counts.index, y=deposit_counts.values, labels={'x':'Deposit', 'y':'Count'})
+st.plotly_chart(fig_deposit)
 
 # Machine Learning Example
 st.header("Machine Learning Example")
